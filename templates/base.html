@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Savewise - Smart Expense Tracker{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+        <div class="nav-container">
+            <div class="brand-group">
+                <div class="brand-logo">₹</div>
+                <div class="brand-text">
+                    <span class="brand-title">Savewise</span>
+                    <span class="brand-tagline">Smart Expense Tracker</span>
+                </div>
+            </div>
+            <div class="user-badge" id="currentUserBadge" title="Phase 1 Active User">
+                <span class="user-avatar">👤</span>
+                <span class="user-name">Default User</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Shell -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container" role="region" aria-label="Notifications"></div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>Savewise &bull; Split Spending into <strong>Daily</strong> vs <strong>Faltu</strong></p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

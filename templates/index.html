@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Savewise - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Top Action Toolbar & Month Selector -->
+    <section class="toolbar-section">
+        <div class="month-selector-card">
+            <label for="monthPicker" class="form-label">Active Month:</label>
+            <div class="month-input-wrapper">
+                <input type="month" id="monthPicker" class="input-control month-input" aria-label="Select Month">
+                <button type="button" id="currentMonthBtn" class="btn btn-secondary btn-sm" title="Jump to current month">This Month</button>
+            </div>
+        </div>
+
+        <div class="action-buttons-group">
+            <button type="button" id="openAddIncomeBtn" class="btn btn-success">
+                <span class="btn-icon">+</span> Add Income
+            </button>
+            <button type="button" id="openAddExpenseBtn" class="btn btn-primary">
+                <span class="btn-icon">+</span> Add Expense
+            </button>
+        </div>
+    </section>
+
+    <!-- 4 Summary Financial Cards -->
+    <section class="summary-cards-grid" aria-label="Monthly Financial Summary">
+        <!-- Card 1: Total Income -->
+        <div class="summary-card card-income" id="cardIncomeContainer">
+            <div class="card-header">
+                <span class="card-icon">💰</span>
+                <span class="card-title">Total Income</span>
+            </div>
+            <div class="card-amount" id="cardTotalIncome">₹0.00</div>
+            <div class="card-footer-text" id="cardIncomeCount">0 transactions recorded</div>
+        </div>
+
+        <!-- Card 2: Daily Use Expenses -->
+        <div class="summary-card card-daily" id="cardDailyContainer">
+            <div class="card-header">
+                <span class="card-icon">🛒</span>
+                <span class="card-title">Daily Use (Needs)</span>
+            </div>
+            <div class="card-amount" id="cardTotalDaily">₹0.00</div>
+            <div class="card-footer-text">Food, travel, bills & essentials</div>
+        </div>
+
+        <!-- Card 3: Faltu Expenses -->
+        <div class="summary-card card-faltu" id="cardFaltuContainer">
+            <div class="card-header">
+                <span class="card-icon">💸</span>
+                <span class="card-title">Faltu (Wasteful)</span>
+            </div>
+            <div class="card-amount" id="cardTotalFaltu">₹0.00</div>
+            <div class="card-badges-row">
+                <span class="badge badge-faltu" id="cardFaltuPercentage">0% of expenses</span>
+                <span class="badge badge-subtle" id="cardFaltuIncomePercent">0% of income</span>
+            </div>
+        </div>
+
+        <!-- Card 4: Net Balance -->
+        <div class="summary-card card-balance" id="cardBalanceContainer">
+            <div class="card-header">
+                <span class="card-icon">⚖️</span>
+                <span class="card-title">Remaining Balance</span>
+            </div>
+            <div class="card-amount" id="cardTotalBalance">₹0.00</div>
+            <div class="card-footer-text" id="cardBalanceStatus">Income minus all expenses</div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid: Incomes & Expenses Split View -->
+    <div class="transactions-layout">
+        <!-- Expenses Column (Primary Focus) -->
+        <section class="section-card expenses-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Expenses</h2>
+                    <p class="section-subtitle">Track daily essentials vs impulse faltu spending</p>
+                </div>
+                <!-- Filter Tabs -->
+                <div class="filter-tabs" role="tablist" aria-label="Expense Filter Tabs">
+                    <button type="button" class="tab-btn active" data-type="all" id="filterAll">All</button>
+                    <button type="button" class="tab-btn" data-type="daily" id="filterDaily">Daily</button>
+                    <button type="button" class="tab-btn" data-type="faltu" id="filterFaltu">Faltu</button>
+                </div>
+            </div>
+
+            <!-- Expenses Table / Responsive List -->
+            <div class="table-responsive">
+                <table class="data-table" id="expensesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Note</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expensesTableBody">
+                        <!-- Populated safely via static/js/dashboard.js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State for Expenses -->
+            <div id="expensesEmptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">📝</div>
+                <h3 class="empty-title">No expenses recorded</h3>
+                <p class="empty-desc">You have no spending logged for this month. Click "+ Add Expense" to log your first transaction.</p>
+            </div>
+        </section>
+
+        <!-- Incomes Column -->
+        <section class="section-card incomes-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Incomes</h2>
+                    <p class="section-subtitle">Pocket money, salary, allowances & gifts</p>
+                </div>
+            </div>
+
+            <!-- Incomes Table / Responsive List -->
+            <div class="table-responsive">
+                <table class="data-table" id="incomesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Note</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incomesTableBody">
+                        <!-- Populated safely via static/js/dashboard.js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State for Incomes -->
+            <div id="incomesEmptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">🪙</div>
+                <h3 class="empty-title">No income recorded</h3>
+                <p class="empty-desc">No income recorded for this month. Click "+ Add Income" to record your starting balance.</p>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- Modal Dialog 1: Add / Edit Income                       -->
+<!-- ======================================================= -->
+<div id="incomeModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="incomeModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="incomeModalTitle" class="modal-title">Add Income</h3>
+            <button type="button" class="btn-close" id="closeIncomeModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="incomeForm" novalidate>
+            <input type="hidden" id="incomeId" value="">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="incomeAmount" class="form-label">Amount (INR ₹) <span class="required">*</span></label>
+                    <input type="number" id="incomeAmount" class="input-control" step="0.01" min="0.01" placeholder="e.g. 5000.00" required>
+                    <span class="field-error" id="incomeAmountError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeSource" class="form-label">Income Source <span class="required">*</span></label>
+                    <input type="text" id="incomeSource" class="input-control" list="incomeSourceSuggestions" placeholder="e.g. Pocket Money, Salary, Freelance" required maxlength="100">
+                    <datalist id="incomeSourceSuggestions">
+                        <option value="Pocket Money">
+                        <option value="Salary">
+                        <option value="Freelancing">
+                        <option value="Scholarship">
+                        <option value="Gift / Cash">
+                        <option value="Investment Returns">
+                    </datalist>
+                    <span class="field-error" id="incomeSourceError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeDate" class="form-label">Date <span class="required">*</span></label>
+                    <input type="date" id="incomeDate" class="input-control" required>
+                    <span class="field-error" id="incomeDateError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="incomeNote" class="form-label">Note (Optional)</label>
+                    <input type="text" id="incomeNote" class="input-control" placeholder="e.g. UPI transfer from mom" maxlength="255">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelIncomeBtn">Cancel</button>
+                <button type="submit" class="btn btn-success" id="saveIncomeBtn">Save Income</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- Modal Dialog 2: Add / Edit Expense                      -->
+<!-- ======================================================= -->
+<div id="expenseModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="expenseModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="expenseModalTitle" class="modal-title">Add Expense</h3>
+            <button type="button" class="btn-close" id="closeExpenseModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="expenseForm" novalidate>
+            <input type="hidden" id="expenseId" value="">
+            <div class="modal-body">
+                <!-- Type Selection: Daily vs Faltu -->
+                <div class="form-group">
+                    <label class="form-label">Expense Classification <span class="required">*</span></label>
+                    <div class="type-radio-grid">
+                        <label class="type-radio-card radio-daily">
+                            <input type="radio" name="expenseTypeRadio" value="daily" id="radioTypeDaily" checked>
+                            <span class="radio-content">
+                                <span class="radio-title">🛒 Daily Use</span>
+                                <span class="radio-desc">Essential (Food, travel, recharge)</span>
+                            </span>
+                        </label>
+                        <label class="type-radio-card radio-faltu">
+                            <input type="radio" name="expenseTypeRadio" value="faltu" id="radioTypeFaltu">
+                            <span class="radio-content">
+                                <span class="radio-title">💸 Faltu</span>
+                                <span class="radio-desc">Wasteful / Impulse (Snacks, shopping)</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseCategory" class="form-label">Sub-Category <span class="required">*</span></label>
+                    <input type="text" id="expenseCategory" class="input-control" list="expenseCategorySuggestions" placeholder="e.g. Food, Metro, Chai, Shopping" required maxlength="100">
+                    <datalist id="expenseCategorySuggestions">
+                        <option value="Food & Meals">
+                        <option value="Travel & Metro">
+                        <option value="Chai & Snacks">
+                        <option value="Groceries">
+                        <option value="Mobile Recharge">
+                        <option value="Impulse Shopping">
+                        <option value="Gaming & Entertainment">
+                        <option value="Stationery & Books">
+                    </datalist>
+                    <span class="field-error" id="expenseCategoryError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseAmount" class="form-label">Amount (INR ₹) <span class="required">*</span></label>
+                    <input type="number" id="expenseAmount" class="input-control" step="0.01" min="0.01" placeholder="e.g. 150.00" required>
+                    <span class="field-error" id="expenseAmountError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseDate" class="form-label">Date <span class="required">*</span></label>
+                    <input type="date" id="expenseDate" class="input-control" required>
+                    <span class="field-error" id="expenseDateError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="expenseNote" class="form-label">Note (Optional)</label>
+                    <input type="text" id="expenseNote" class="input-control" placeholder="e.g. Evening cafe visit with friends" maxlength="255">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelExpenseBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveExpenseBtn">Save Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Modular Vanilla JavaScript Application -->
+<script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
