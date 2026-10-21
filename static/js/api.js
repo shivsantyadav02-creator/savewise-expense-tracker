@@ -35,7 +35,17 @@ async function request(endpoint, options = {}) {
     }
 
     if (!response.ok || !result.success) {
-        if (response.status === 401) {
+        // NOTE: When a session expires or an unauthenticated user accesses protected app data,
+        // the server responds with 401, requiring an immediate redirect to /login.
+        // However, this redirect must NOT apply to /auth/login or /auth/register, or when
+        // the user is already on the /login page.
+        // Why: Bad credentials during login return 401 by design; redirecting would wipe
+        // the form state, reload the page, or cause a redirect loop instead of allowing
+        // the login UI to display "Invalid email or password." to the user.
+        const isAuthCall = endpoint.startsWith("/auth/login") || endpoint.startsWith("/auth/register");
+        const isOnLoginPage = typeof window !== "undefined" && window.location && window.location.pathname.startsWith("/login");
+
+        if (response.status === 401 && !isAuthCall && !isOnLoginPage) {
             window.location.href = "/login";
         }
         const errorMsg = (result && result.error) ? result.error : `HTTP ${response.status} error`;
@@ -46,6 +56,12 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+    // Auth
+    login: (credentials) => request("/auth/login", { method: "POST", body: credentials }),
+    register: (data) => request("/auth/register", { method: "POST", body: data }),
+    logout: () => request("/auth/logout", { method: "POST" }),
+    getCurrentUser: () => request("/auth/me"),
+
     // Dashboard
     getDashboardSummary: (month) => {
         const query = month ? `?month=${encodeURIComponent(month)}` : "";
