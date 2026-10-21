@@ -1,8 +1,10 @@
 from datetime import datetime
 from flask import Blueprint, request
 
-from utils.auth import get_current_user_id
+from utils.auth import get_current_user_id, login_required
 from utils.responses import success_response, error_response
+from utils.helpers import validate_month
+from utils.clock import today_local
 from services.expense_service import (
     create_expense,
     get_expenses,
@@ -14,6 +16,7 @@ from services.expense_service import (
 expense_bp = Blueprint("expenses", __name__, url_prefix="/expenses")
 
 @expense_bp.route("", methods=["GET"], strict_slashes=False)
+@login_required
 def list_expenses():
     """
     List all expenses for the current user.
@@ -23,7 +26,8 @@ def list_expenses():
     """
     try:
         user_id = get_current_user_id()
-        month = request.args.get("month", "").strip() or datetime.now().strftime("%Y-%m")
+        raw_month = request.args.get("month", "").strip()
+        month = validate_month(raw_month) if raw_month else today_local().strftime("%Y-%m")
         expense_type = request.args.get("type", "").strip() or None
 
         expenses = get_expenses(user_id=user_id, month=month, expense_type=expense_type)
@@ -38,6 +42,7 @@ def list_expenses():
         return error_response("An unexpected server error occurred.", 500)
 
 @expense_bp.route("", methods=["POST"], strict_slashes=False)
+@login_required
 def add_expense():
     """
     Creates a new expense record (daily or faltu).
@@ -79,6 +84,7 @@ def add_expense():
         return error_response("An unexpected server error occurred.", 500)
 
 @expense_bp.route("/<int:expense_id>", methods=["GET"], strict_slashes=False)
+@login_required
 def get_expense(expense_id: int):
     """
     Fetches a single expense record by its ID.
@@ -100,6 +106,7 @@ def get_expense(expense_id: int):
         return error_response("An unexpected server error occurred.", 500)
 
 @expense_bp.route("/<int:expense_id>", methods=["PUT"], strict_slashes=False)
+@login_required
 def modify_expense(expense_id: int):
     """
     Updates an existing expense record.
@@ -139,6 +146,7 @@ def modify_expense(expense_id: int):
         return error_response("An unexpected server error occurred.", 500)
 
 @expense_bp.route("/<int:expense_id>", methods=["DELETE"], strict_slashes=False)
+@login_required
 def remove_expense(expense_id: int):
     """
     Deletes an expense record owned by current user.

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savewise - Offline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <style>
+        body {
+            background-color: var(--bg-page);
+            font-family: var(--font-family);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .offline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 440px;
+            width: 100%;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .offline-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .offline-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .offline-desc {
+            font-size: 0.925rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.75rem;
+        }
+
+        .btn-retry {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            background: var(--color-daily);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-retry:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .offline-brand {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-card">
+        <div class="offline-icon-wrapper">
+            📶
+        </div>
+        <h1 class="offline-title">You are offline</h1>
+        <p class="offline-desc">
+            Savewise needs an active internet connection to securely manage your finances and protect your account data.
+        </p>
+        <button type="button" class="btn-retry" onclick="window.location.reload()">
+            <span>🔄</span> Retry Connection
+        </button>
+        <div class="offline-brand">Savewise Smart Expense Tracker</div>
+    </div>
+</body>
+</html>

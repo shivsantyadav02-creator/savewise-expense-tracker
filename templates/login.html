@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+
+{% block title %}Savewise - Sign In or Register{% endblock %}
+
+{% block extra_head %}
+<!-- PWA Manifest & Meta for Login -->
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<meta name="theme-color" content="#2563eb">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<style>
+    /* Hide the user badge on the login page */
+    #currentUserBadge {
+        display: none !important;
+    }
+
+    .auth-wrapper {
+        min-height: calc(80vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
+    .auth-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        max-width: 440px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .auth-header {
+        padding: 2rem 2rem 1.25rem 2rem;
+        text-align: center;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .auth-logo-badge {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: #fff;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .auth-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .auth-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-subtle);
+        background: #f8fafc;
+    }
+
+    .auth-tab-btn {
+        flex: 1;
+        padding: 0.9rem;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .auth-tab-btn.active {
+        color: #2563eb;
+        background: #ffffff;
+        border-bottom-color: #2563eb;
+    }
+
+    .auth-body {
+        padding: 1.75rem 2rem 2rem 2rem;
+    }
+
+    .auth-form-panel {
+        display: none;
+    }
+
+    .auth-form-panel.active {
+        display: block;
+        animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 0.9rem;
+        font-family: inherit;
+        font-size: 0.925rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        background: #ffffff;
+        color: var(--text-main);
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .form-hint {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.3rem;
+    }
+
+    .auth-alert {
+        display: none;
+        padding: 0.75rem 0.9rem;
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+    }
+
+    .auth-alert.error {
+        display: block;
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .auth-alert.success {
+        display: block;
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .btn-auth-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-auth-submit:hover:not(:disabled) {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-auth-submit:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    .auth-footer-help {
+        text-align: center;
+        margin-top: 1.25rem;
+        font-size: 0.825rem;
+        color: var(--text-muted);
+    }
+
+    .auth-switch-link {
+        color: #2563eb;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo-badge">₹</div>
+            <h1 class="auth-title">Savewise</h1>
+            <p class="auth-subtitle">Track, budget, and master your money</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist">
+            <button type="button" class="auth-tab-btn active" id="tabLoginBtn" role="tab" aria-selected="true" aria-controls="loginPanel">
+                Sign In
+            </button>
+            <button type="button" class="auth-tab-btn" id="tabRegisterBtn" role="tab" aria-selected="false" aria-controls="registerPanel">
+                Create Account
+            </button>
+        </div>
+
+        <div class="auth-body">
+            <!-- Alert message display -->
+            <div id="authAlert" class="auth-alert" role="alert"></div>
+
+            <!-- ── Login Form ────────────────────────────────────────────── -->
+            <div class="auth-form-panel active" id="loginPanel" role="tabpanel" aria-labelledby="tabLoginBtn">
+                <form id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="loginEmail" class="form-label">Email Address</label>
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            name="email"
+                            class="form-control"
+                            placeholder="you@example.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            name="password"
+                            class="form-control"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
+
+                    <button type="submit" id="loginSubmitBtn" class="btn-auth-submit">
+                        <span class="btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <p class="auth-footer-help">
+                    Don't have an account? <span class="auth-switch-link" id="linkToRegister">Create one</span>
+                </p>
+            </div>
+
+            <!-- ── Register Form ─────────────────────────────────────────── -->
+            <div class="auth-form-panel" id="registerPanel" role="tabpanel" aria-labelledby="tabRegisterBtn">
+                <form id="registerForm" novalidate>
+                    <div class="form-group">
+                        <label for="regUsername" class="form-label">Username</label>
+                        <input
+                            type="text"
+                            id="regUsername"
+                            name="username"
+                            class="form-control"
+                            placeholder="e.g. rahul_sharma"
+                            required
+                            autocomplete="username"
+                            pattern="^[a-zA-Z0-9_]{3,30}$"
+                        >
+                        <div class="form-hint">3–30 characters (letters, numbers, underscores)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail" class="form-label">Email Address</label>
+                        <input
+                            type="email"
+                            id="regEmail"
+                            name="email"
+                            class="form-control"
+                            placeholder="you@example.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword" class="form-label">Password</label>
+                        <input
+                            type="password"
+                            id="regPassword"
+                            name="password"
+                            class="form-control"
+                            placeholder="At least 8 characters"
+                            required
+                            minlength="8"
+                            autocomplete="new-password"
+                        >
+                        <div class="form-hint">Minimum 8 characters</div>
+                    </div>
+
+                    <button type="submit" id="registerSubmitBtn" class="btn-auth-submit">
+                        <span class="btn-text">Create Account</span>
+                    </button>
+                </form>
+
+                <p class="auth-footer-help">
+                    Already have an account? <span class="auth-switch-link" id="linkToLogin">Sign in</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const tabLoginBtn = document.getElementById("tabLoginBtn");
+    const tabRegisterBtn = document.getElementById("tabRegisterBtn");
+    const loginPanel = document.getElementById("loginPanel");
+    const registerPanel = document.getElementById("registerPanel");
+    const linkToRegister = document.getElementById("linkToRegister");
+    const linkToLogin = document.getElementById("linkToLogin");
+    const authAlert = document.getElementById("authAlert");
+
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+    const registerSubmitBtn = document.getElementById("registerSubmitBtn");
+
+    function showAlert(msg, type = "error") {
+        authAlert.textContent = msg;
+        authAlert.className = `auth-alert ${type}`;
+    }
+
+    function hideAlert() {
+        authAlert.textContent = "";
+        authAlert.className = "auth-alert";
+    }
+
+    function switchTab(target) {
+        hideAlert();
+        if (target === "register") {
+            tabLoginBtn.classList.remove("active");
+            tabLoginBtn.setAttribute("aria-selected", "false");
+            tabRegisterBtn.classList.add("active");
+            tabRegisterBtn.setAttribute("aria-selected", "true");
+
+            loginPanel.classList.remove("active");
+            registerPanel.classList.add("active");
+            document.getElementById("regUsername").focus();
+        } else {
+            tabRegisterBtn.classList.remove("active");
+            tabRegisterBtn.setAttribute("aria-selected", "false");
+            tabLoginBtn.classList.add("active");
+            tabLoginBtn.setAttribute("aria-selected", "true");
+
+            registerPanel.classList.remove("active");
+            loginPanel.classList.add("active");
+            document.getElementById("loginEmail").focus();
+        }
+    }
+
+    tabLoginBtn.addEventListener("click", () => switchTab("login"));
+    tabRegisterBtn.addEventListener("click", () => switchTab("register"));
+    linkToRegister.addEventListener("click", () => switchTab("register"));
+    linkToLogin.addEventListener("click", () => switchTab("login"));
+
+    // Handle Login Submit
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideAlert();
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        if (!email || !password) {
+            showAlert("Please enter both email and password.");
+            return;
+        }
+
+        loginSubmitBtn.disabled = true;
+        loginSubmitBtn.querySelector(".btn-text").textContent = "Signing In...";
+
+        try {
+            const res = await fetch("/api/v1/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.success) {
+                showAlert("Signed in successfully! Redirecting...", "success");
+                window.location.href = "/";
+            } else {
+                showAlert(data.error || "Invalid email or password.");
+            }
+        } catch (err) {
+            showAlert("Network error. Please check your connection.");
+        } finally {
+            loginSubmitBtn.disabled = false;
+            loginSubmitBtn.querySelector(".btn-text").textContent = "Sign In";
+        }
+    });
+
+    // Handle Register Submit
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideAlert();
+
+        const username = document.getElementById("regUsername").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        const password = document.getElementById("regPassword").value;
+
+        if (!username || !email || !password) {
+            showAlert("All fields are required.");
+            return;
+        }
+
+        if (password.length < 8) {
+            showAlert("Password must be at least 8 characters long.");
+            return;
+        }
+
+        registerSubmitBtn.disabled = true;
+        registerSubmitBtn.querySelector(".btn-text").textContent = "Creating Account...";
+
+        try {
+            const res = await fetch("/api/v1/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.success) {
+                showAlert("Account created! Redirecting to dashboard...", "success");
+                window.location.href = "/";
+            } else {
+                showAlert(data.error || "Could not create account. Please check details.");
+            }
+        } catch (err) {
+            showAlert("Network error. Please check your connection.");
+        } finally {
+            registerSubmitBtn.disabled = false;
+            registerSubmitBtn.querySelector(".btn-text").textContent = "Create Account";
+        }
+    });
+});
+</script>
+{% endblock %}

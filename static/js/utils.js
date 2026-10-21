@@ -70,6 +70,34 @@ export function formatDateDisplay(dateStr) {
 }
 
 /**
+ * Formats "YYYY-MM" into a readable month string (e.g. "October 2026").
+ */
+export function formatMonthDisplay(monthStr) {
+    if (!monthStr || typeof monthStr !== "string") return "";
+    const parts = monthStr.split("-");
+    if (parts.length !== 2) return monthStr;
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const dateObj = new Date(year, month, 1);
+    if (isNaN(dateObj.getTime())) return monthStr;
+    return dateObj.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+}
+
+/**
+ * Formats "YYYY-MM" into a short month string for chart axis (e.g. "Oct '26").
+ */
+export function formatMonthShort(monthStr) {
+    if (!monthStr || typeof monthStr !== "string") return "";
+    const parts = monthStr.split("-");
+    if (parts.length !== 2) return monthStr;
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const dateObj = new Date(year, month, 1);
+    if (isNaN(dateObj.getTime())) return monthStr;
+    return dateObj.toLocaleDateString("en-IN", { month: "short", year: "2-digit" });
+}
+
+/**
  * Safe DOM Element Factory to prevent Cross-Site Scripting (XSS).
  * Strictly uses textContent and setAttribute; NEVER uses innerHTML.
  */

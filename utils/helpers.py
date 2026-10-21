@@ -1,21 +1,34 @@
+import re
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from datetime import datetime
 
-def inr_to_paise(amount_inr) -> int:
+MONTH_REGEX = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+
+def inr_to_paise(amount_inr, allow_zero: bool = False) -> int:
     """
     Safely converts amount in INR to integer paise.
     Uses Decimal to avoid floating-point binary precision issues.
     
+    Parameters:
+        amount_inr: Numeric or string representation of rupees.
+        allow_zero: If True, 0 is accepted (e.g. for a zero limit budget).
+                    If False (default), amount must be strictly positive.
+                    
     Example:
         inr_to_paise(19.99) -> 1999
         inr_to_paise("15.50") -> 1550
+        inr_to_paise(0, allow_zero=True) -> 0
     """
     if amount_inr is None:
         raise ValueError("Amount cannot be None")
     try:
         dec = Decimal(str(amount_inr))
-        if dec <= 0:
-            raise ValueError("Amount must be greater than zero")
+        if allow_zero:
+            if dec < 0:
+                raise ValueError("Amount cannot be negative")
+        else:
+            if dec <= 0:
+                raise ValueError("Amount must be greater than zero")
         paise = (dec * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
         return int(paise)
     except (InvalidOperation, TypeError):
@@ -47,3 +60,16 @@ def derive_month_from_date(date_str: str) -> str:
         return dt.strftime("%Y-%m")
     except ValueError:
         raise ValueError(f"Invalid date '{date_str}'. Expected format is 'YYYY-MM-DD'.")
+
+def validate_month(month_str: str) -> str:
+    """
+    Validates that month_str is in strict 'YYYY-MM' format (e.g. '2026-01').
+    Must match exactly ^\\d{4}-(0[1-9]|1[0-2])$.
+    Returns the valid month string, or raises ValueError.
+    """
+    if not month_str or not isinstance(month_str, str):
+        raise ValueError("Month is required and must be in 'YYYY-MM' format (e.g. '2026-01').")
+    clean = month_str.strip()
+    if not MONTH_REGEX.match(clean):
+        raise ValueError(f"Invalid month '{month_str}'. Expected format is 'YYYY-MM' (e.g. '2026-01').")
+    return clean

@@ -1,5 +1,5 @@
 from database.db import get_db
-from utils.helpers import inr_to_paise, paise_to_inr, derive_month_from_date
+from utils.helpers import inr_to_paise, paise_to_inr, derive_month_from_date, validate_month
 
 def _format_income_row(row) -> dict:
     """Helper to convert an SQLite Row into a user-friendly dictionary with amount_inr."""
@@ -52,13 +52,14 @@ def get_incomes(user_id: int, month: str = None) -> list:
     
     db = get_db()
     if month:
+        clean_month = validate_month(month)
         cursor = db.execute(
             """
             SELECT * FROM incomes
             WHERE user_id = ? AND month = ?
             ORDER BY date DESC, id DESC
             """,
-            (user_id, month.strip())
+            (user_id, clean_month)
         )
     else:
         cursor = db.execute(

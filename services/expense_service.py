@@ -1,5 +1,5 @@
 from database.db import get_db
-from utils.helpers import inr_to_paise, paise_to_inr, derive_month_from_date
+from utils.helpers import inr_to_paise, paise_to_inr, derive_month_from_date, validate_month
 
 VALID_EXPENSE_TYPES = {"daily", "faltu"}
 
@@ -64,8 +64,9 @@ def get_expenses(user_id: int, month: str = None, expense_type: str = None) -> l
     params = [user_id]
 
     if month:
+        clean_month = validate_month(month)
         query += " AND month = ?"
-        params.append(month.strip())
+        params.append(clean_month)
 
     if expense_type and expense_type.lower() in VALID_EXPENSE_TYPES:
         query += " AND type = ?"

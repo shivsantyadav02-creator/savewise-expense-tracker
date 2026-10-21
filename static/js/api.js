@@ -48,6 +48,13 @@ export const api = {
         const query = month ? `?month=${encodeURIComponent(month)}` : "";
         return request(`/dashboard/summary${query}`);
     },
+    getDashboardHistory: (months = 6, month = null) => {
+        const params = new URLSearchParams();
+        if (months) params.append("months", months);
+        if (month) params.append("month", month);
+        const query = params.toString() ? `?${params.toString()}` : "";
+        return request(`/dashboard/history${query}`);
+    },
 
     // Incomes
     getIncomes: (month) => {
@@ -70,5 +77,56 @@ export const api = {
     getExpenseById: (id) => request(`/expenses/${id}`),
     createExpense: (data) => request("/expenses", { method: "POST", body: data }),
     updateExpense: (id, data) => request(`/expenses/${id}`, { method: "PUT", body: data }),
-    deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" })
+    deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" }),
+
+    // Budgets (Faltu Limit)
+    getBudget: (month) => request(`/budgets/${encodeURIComponent(month)}`),
+    setBudget: (month, data) => request(`/budgets/${encodeURIComponent(month)}`, { method: "PUT", body: data }),
+
+    // Savings Goals
+    getGoal: (month) => request(`/goals/${encodeURIComponent(month)}`),
+    setGoal: (month, data) => request(`/goals/${encodeURIComponent(month)}`, { method: "PUT", body: data }),
+
+    // Quick Presets
+    getPresets: () => request("/presets"),
+    createPreset: (data) => request("/presets", { method: "POST", body: data }),
+    updatePreset: (id, data) => request(`/presets/${id}`, { method: "PUT", body: data }),
+    deletePreset: (id) => request(`/presets/${id}`, { method: "DELETE" }),
+    usePreset: (id) => request(`/presets/${id}/use`, { method: "POST" }),
+
+    // Wishlist (24-Hour Wait Rule)
+    getWishlist: (status = "waiting") => request(`/wishlist?status=${encodeURIComponent(status)}`),
+    getWishlistSummary: () => request("/wishlist/summary"),
+    createWishlist: (data) => request("/wishlist", { method: "POST", body: data }),
+    updateWishlist: (id, data) => request(`/wishlist/${id}`, { method: "PUT", body: data }),
+    buyWishlist: (id) => request(`/wishlist/${id}/buy`, { method: "POST" }),
+    dropWishlist: (id) => request(`/wishlist/${id}/drop`, { method: "POST" }),
+
+    // Udhar (Money Lent / Borrowed)
+    getUdhar: (status = "pending", type = null) => {
+        const params = new URLSearchParams({ status });
+        if (type) params.append("type", type);
+        return request(`/udhar?${params.toString()}`);
+    },
+    getUdharSummary: () => request("/udhar/summary"),
+    createUdhar: (data) => request("/udhar", { method: "POST", body: data }),
+    updateUdhar: (id, data) => request(`/udhar/${id}`, { method: "PUT", body: data }),
+    settleUdhar: (id) => request(`/udhar/${id}/settle`, { method: "POST" }),
+    reopenUdhar: (id) => request(`/udhar/${id}/reopen`, { method: "POST" }),
+    deleteUdhar: (id) => request(`/udhar/${id}`, { method: "DELETE" }),
+
+    // Phase 3 Insights (Simulator, Balance Prediction, Summary, Weekly Report)
+    getSimulator: (month, annualReturn = 12) => {
+        const params = new URLSearchParams({ month });
+        if (annualReturn !== undefined && annualReturn !== null) {
+            params.append("annual_return", annualReturn);
+        }
+        return request(`/insights/simulator?${params.toString()}`);
+    },
+    getPrediction: (month) => request(`/insights/prediction?month=${encodeURIComponent(month)}`),
+    getInsightsSummary: (month) => request(`/insights/summary?month=${encodeURIComponent(month)}`),
+    getWeeklyReport: (weekStart = null) => {
+        const url = weekStart ? `/insights/weekly?week_start=${encodeURIComponent(weekStart)}` : "/insights/weekly";
+        return request(url);
+    }
 };

@@ -70,6 +70,112 @@
         </div>
     </section>
 
+    <!-- ======================================================= -->
+    <!-- Phase 2: Faltu Limit & Savings Goal Progress Cards      -->
+    <!-- ======================================================= -->
+    <section class="phase2-cards-grid" aria-label="Budget Limit and Savings Goal">
+
+        <!-- Faltu Limit Card -->
+        <div class="progress-card card-limit" id="cardFaltuLimitContainer">
+            <div class="progress-card-header">
+                <div class="progress-card-title-group">
+                    <span class="progress-card-icon">🚦</span>
+                    <span class="progress-card-title">Faltu Limit</span>
+                </div>
+                <button type="button" class="btn-set-edit" id="openSetLimitBtn" title="Set or edit faltu spending limit">Set / Edit</button>
+            </div>
+
+            <!-- State: no limit configured -->
+            <div id="faltuLimitEmpty">
+                <p class="progress-card-empty">No faltu spending limit set for this month. Click &ldquo;Set / Edit&rdquo; to add one.</p>
+            </div>
+
+            <!-- State: limit configured -->
+            <div id="faltuLimitData" style="display:none;">
+                <div class="progress-card-amount">
+                    <span id="faltuLimitUsed">₹0.00</span>
+                    <span class="amount-of"> of <span id="faltuLimitMax">₹0.00</span></span>
+                </div>
+                <div class="progress-bar-track" role="progressbar" aria-label="Faltu spending limit usage" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" id="faltuLimitBar" style="width:0%;"></div>
+                </div>
+                <p class="progress-card-message" id="faltuLimitMessage"></p>
+            </div>
+        </div>
+
+        <!-- Savings Goal Card -->
+        <div class="progress-card card-goal" id="cardSavingsGoalContainer">
+            <div class="progress-card-header">
+                <div class="progress-card-title-group">
+                    <span class="progress-card-icon">🎯</span>
+                    <span class="progress-card-title" id="savingsGoalLabel">Savings Goal</span>
+                </div>
+                <button type="button" class="btn-set-edit" id="openSetGoalBtn" title="Set or edit savings goal">Set / Edit</button>
+            </div>
+
+            <!-- State: no goal configured -->
+            <div id="savingsGoalEmpty">
+                <p class="progress-card-empty">No savings goal set for this month. Click &ldquo;Set / Edit&rdquo; to add one.</p>
+            </div>
+
+            <!-- State: goal configured -->
+            <div id="savingsGoalData" style="display:none;">
+                <div class="progress-card-amount">
+                    <span id="savingsGoalBalance">₹0.00</span>
+                    <span class="amount-of"> of <span id="savingsGoalTarget">₹0.00</span></span>
+                </div>
+                <div class="progress-bar-track" role="progressbar" aria-label="Savings goal progress" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" id="savingsGoalBar" style="width:0%;"></div>
+                </div>
+                <p class="progress-card-message" id="savingsGoalMessage"></p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- Charts Section: Spending Breakdown & 6-Month Trend     -->
+    <!-- ======================================================= -->
+    <section class="charts-section-grid" aria-label="Financial Charts and Trends">
+        <!-- Chart 1: Daily vs Faltu Doughnut Chart for Selected Month -->
+        <div class="chart-card" id="doughnutChartCard">
+            <div class="chart-card-header">
+                <div class="chart-card-title-group">
+                    <span class="chart-card-icon">🍩</span>
+                    <h2 class="chart-card-title">Daily vs Faltu Breakdown</h2>
+                </div>
+                <span class="chart-card-subtitle" id="doughnutMonthLabel">This Month</span>
+            </div>
+            <div class="chart-canvas-wrapper" id="doughnutCanvasWrapper">
+                <canvas id="expenseDoughnutChart" aria-label="Daily vs Faltu Spending Doughnut Chart" role="img"></canvas>
+            </div>
+            <div id="doughnutEmptyState" class="chart-empty-state" style="display: none;">
+                <div class="empty-icon">📊</div>
+                <h3 class="chart-empty-title">No spending logged</h3>
+                <p class="chart-empty-desc">Record daily or faltu expenses this month to view the breakdown chart.</p>
+            </div>
+        </div>
+
+        <!-- Chart 2: 6-Month Income vs Expenses Bar Chart -->
+        <div class="chart-card" id="historyChartCard">
+            <div class="chart-card-header">
+                <div class="chart-card-title-group">
+                    <span class="chart-card-icon">📊</span>
+                    <h2 class="chart-card-title">Income vs Expenses (6-Mo Trend)</h2>
+                </div>
+                <span class="chart-card-subtitle">Last 6 Months</span>
+            </div>
+            <div class="chart-canvas-wrapper" id="historyCanvasWrapper">
+                <canvas id="historyBarChart" aria-label="Income vs Expenses Bar Chart" role="img"></canvas>
+            </div>
+            <div id="historyEmptyState" class="chart-empty-state" style="display: none;">
+                <div class="empty-icon">📈</div>
+                <h3 class="chart-empty-title">No transaction history</h3>
+                <p class="chart-empty-desc">No income or expense records found for the past 6 months.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Main Content Grid: Incomes & Expenses Split View -->
     <div class="transactions-layout">
         <!-- Expenses Column (Primary Focus) -->
@@ -84,6 +190,21 @@
                     <button type="button" class="tab-btn active" data-type="all" id="filterAll">All</button>
                     <button type="button" class="tab-btn" data-type="daily" id="filterDaily">Daily</button>
                     <button type="button" class="tab-btn" data-type="faltu" id="filterFaltu">Faltu</button>
+                </div>
+            </div>
+
+            <!-- Quick Add Presets Bar -->
+            <div class="quick-add-container" id="quickAddContainer" aria-label="Quick Add Presets">
+                <div class="quick-add-header">
+                    <span class="quick-add-title">⚡ Quick Add</span>
+                    <button type="button" class="btn-manage-presets" id="openManagePresetsBtn" title="Manage Quick Presets">Manage</button>
+                </div>
+                <!-- Row of buttons dynamically rendered via dashboard.js -->
+                <div class="quick-add-buttons-row" id="quickAddButtonsRow"></div>
+                <!-- Empty State if no presets configured -->
+                <div class="quick-add-empty" id="quickAddEmpty" style="display: none;">
+                    <span>No quick presets configured.</span>
+                    <button type="button" class="btn btn-secondary btn-xs" id="addSuggestedPresetsBtn">+ Add suggested presets (Chai, Auto, Snacks)</button>
                 </div>
             </div>
 
@@ -148,6 +269,340 @@
                 <p class="empty-desc">No income recorded for this month. Click "+ Add Income" to record your starting balance.</p>
             </div>
         </section>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- Wishlist: 24-Hour Impulse Buying Barrier Section        -->
+    <!-- ======================================================= -->
+    <section class="section-card wishlist-section" aria-label="24-Hour Wait Rule Wishlist">
+        <div class="section-header">
+            <div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span style="font-size:1.3rem;">⏳</span>
+                    <h2 class="section-title">24-Hour Wait Wishlist</h2>
+                </div>
+                <p class="section-subtitle">Cool off before you spend. If you still want it in 24 hours, buy it guilt-free!</p>
+            </div>
+            <div class="wishlist-summary-badges">
+                <span class="badge-saved" id="wishlistMoneySavedBadge">Money saved by waiting: ₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Add Wishlist Item Form -->
+        <form id="addWishlistForm" class="wishlist-inline-form" novalidate>
+            <div class="form-group" style="flex: 2; margin-bottom: 0; min-width: 200px;">
+                <input type="text" id="wishlistItemName" class="input-control" placeholder="What are you tempted to buy? (e.g. Headphones)" maxlength="60" required>
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0; min-width: 120px;">
+                <input type="number" id="wishlistAmount" class="input-control" step="0.01" min="0.01" placeholder="Price (₹)" required>
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0; min-width: 140px;">
+                <input type="text" id="wishlistCategory" class="input-control" list="expenseCategorySuggestions" placeholder="Category (e.g. Shopping)" maxlength="50">
+            </div>
+            <button type="submit" class="btn btn-primary" id="saveWishlistBtn">
+                <span>+ Start 24h Timer</span>
+            </button>
+        </form>
+
+        <!-- Waiting Wishlist Items Grid / List -->
+        <div class="wishlist-items-grid" id="wishlistItemsContainer">
+            <!-- Rendered safely via dashboard.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="wishlistEmptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">🧘</div>
+            <h3 class="empty-title">Wishlist is empty</h3>
+            <p class="empty-desc">No impulse purchases on hold right now. When you see something you want, add it here first and let the 24-hour clock tick!</p>
+        </div>
+    </section>
+</div>
+
+<!-- ======================================================= -->
+<!-- Udhar: Money Lent / Borrowed Tracker                    -->
+<!-- ======================================================= -->
+<section class="section-card udhar-section" aria-label="Udhar Tracker">
+    <div class="section-header">
+        <div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.3rem;">🤝</span>
+                <h2 class="section-title">Udhar Tracker</h2>
+            </div>
+            <p class="section-subtitle">Track money you lent or borrowed. Completely separate from your budget.</p>
+        </div>
+        <div class="udhar-summary-row">
+            <span class="udhar-summary-badge udhar-badge--receive" id="udharReceiveBadge">To Receive: ₹0.00</span>
+            <span class="udhar-summary-badge udhar-badge--pay" id="udharPayBadge">To Pay: ₹0.00</span>
+            <span class="badge-overdue-count" id="udharOverdueCount" style="display:none;">0 overdue</span>
+        </div>
+    </div>
+
+    <!-- Add Udhar Form -->
+    <form id="addUdharForm" class="udhar-inline-form" novalidate>
+        <!-- Type toggle -->
+        <div class="udhar-type-toggle" role="group" aria-label="Udhar type">
+            <input type="radio" name="udharType" id="udharTypeLent" value="lent" checked>
+            <label for="udharTypeLent">📤 I Lent</label>
+            <input type="radio" name="udharType" id="udharTypeBorrowed" value="borrowed">
+            <label for="udharTypeBorrowed">📥 I Borrowed</label>
+        </div>
+
+        <div class="form-group" style="flex:2; margin-bottom:0; min-width:160px;">
+            <input type="text" id="udharPersonName" class="input-control" placeholder="Person's name" maxlength="40" required>
+        </div>
+        <div class="form-group" style="flex:1; margin-bottom:0; min-width:120px;">
+            <input type="number" id="udharAmount" class="input-control" step="0.01" min="0.01" placeholder="Amount (₹)" required>
+        </div>
+        <div class="form-group" style="flex:1; margin-bottom:0; min-width:140px;">
+            <input type="date" id="udharDueDate" class="input-control" title="Due date (optional)">
+        </div>
+        <div class="form-group" style="flex:2; margin-bottom:0; min-width:150px;">
+            <input type="text" id="udharNote" class="input-control" placeholder="Note (optional)" maxlength="200">
+        </div>
+        <button type="submit" class="btn btn-primary" id="udharSubmitBtn">+ Record</button>
+    </form>
+
+    <!-- Pending Udhar List -->
+    <div id="udharPendingList">
+        <!-- Populated safely via udhar.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="udharEmptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">🤝</div>
+        <h3 class="empty-title">No pending udhar</h3>
+        <p class="empty-desc">No money lent or borrowed right now. Use the form above to track an amount.</p>
+    </div>
+
+    <!-- Settled Records Toggle -->
+    <div style="margin-top:0.75rem;">
+        <button type="button" class="btn btn-secondary btn-sm" id="udharToggleSettledBtn">Show Settled Records</button>
+    </div>
+    <div id="udharSettledSection" class="udhar-settled-section" style="display:none;">
+        <div id="udharSettledList">
+            <!-- Populated on toggle -->
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================= -->
+<!-- Insights: Simulator & Month-End Balance Prediction     -->
+<!-- ======================================================= -->
+<section class="section-card insights-section" aria-label="Smart Financial Insights">
+    <div class="section-header">
+        <div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.3rem;">🔮</span>
+                <h2 class="section-title">Smart Insights & Predictions</h2>
+            </div>
+            <p class="section-subtitle">Forecast your month-end balance and see what your faltu spending could become if invested.</p>
+        </div>
+    </div>
+
+    <div class="insights-cards-grid">
+        <!-- Card 1: What if I had saved it? (Simulator) -->
+        <div class="insight-card simulator-card" id="insightsSimulatorCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title-group">
+                    <span class="insight-card-icon">📈</span>
+                    <div>
+                        <h3 class="insight-card-title">"What If I Saved It?" Simulator</h3>
+                        <p class="insight-card-sub">Invest your monthly faltu spending into a monthly SIP instead.</p>
+                    </div>
+                </div>
+                <div class="simulator-rate-control">
+                    <label for="simulatorReturnInput" class="simulator-rate-label">Assumed Return</label>
+                    <div class="simulator-input-wrap">
+                        <input type="number" id="simulatorReturnInput" class="input-control simulator-rate-input" min="0" max="30" step="0.5" value="12">
+                        <span class="rate-unit">% p.a.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simulator-body">
+                <div class="simulator-spend-banner">
+                    <span class="spend-label">Faltu spend available to invest:</span>
+                    <span class="spend-val" id="simulatorFaltuAmount">₹0.00 / month</span>
+                </div>
+
+                <!-- 1, 3, 5 Year Projections Grid -->
+                <div class="simulator-results-grid" id="simulatorResultsGrid">
+                    <!-- Populated safely via insights.js -->
+                </div>
+
+                <!-- Empty State for Simulator -->
+                <div id="simulatorEmptyState" class="empty-state" style="display: none; padding: 1.5rem 1rem;">
+                    <div class="empty-icon">🌱</div>
+                    <h4 class="empty-title">Nothing to simulate</h4>
+                    <p class="empty-desc">No faltu spending recorded for this month. You didn't waste anything to simulate!</p>
+                </div>
+
+                <!-- Illustration Disclaimer -->
+                <p class="simulator-disclaimer" id="simulatorDisclaimer">
+                    This is an illustration with an assumed return, not a guarantee and not financial advice.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 2: Month-End Balance Prediction -->
+        <div class="insight-card prediction-card" id="insightsPredictionCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title-group">
+                    <span class="insight-card-icon">🧭</span>
+                    <div>
+                        <h3 class="insight-card-title">Month-End Balance Prediction</h3>
+                        <p class="insight-card-sub" id="predictionDaysInfo">Pacing and projected outcome based on daily spending velocity.</p>
+                    </div>
+                </div>
+                <div class="prediction-badges-group">
+                    <span class="badge-status" id="predictionStatusBadge">Active</span>
+                    <span class="badge-confidence" id="predictionConfidenceBadge">Medium</span>
+                </div>
+            </div>
+
+            <!-- Overspend Alert Banner -->
+            <div class="prediction-warning-banner" id="predictionWarningBanner" style="display: none;">
+                <span class="warning-icon">⚠️</span>
+                <span class="warning-text" id="predictionWarningText">Warning: projected to overspend by month end.</span>
+            </div>
+
+            <div class="prediction-body" id="predictionDetails">
+                <div class="prediction-metrics-grid">
+                    <div class="prediction-metric-item">
+                        <span class="metric-label">Projected Month-End Balance</span>
+                        <span class="prediction-metric-val" id="predictionProjectedBalance">₹0.00</span>
+                    </div>
+                    <div class="prediction-metric-item">
+                        <span class="metric-label">Safe Daily Budget Remaining</span>
+                        <span class="prediction-metric-val" id="predictionSafeBudget">₹0.00 / day</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State for Prediction (Future Month) -->
+            <div id="predictionEmptyState" class="empty-state" style="display: none; padding: 1.5rem 1rem;">
+                <div class="empty-icon">📅</div>
+                <h4 class="empty-title">Future Month</h4>
+                <p class="empty-desc" id="predictionEmptyText">Prediction will activate once this month begins.</p>
+            </div>
+        </div>
+
+        <!-- Card 3: Smart Insights -->
+        <div class="insight-card smart-insights-card" id="insightsSummaryCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title-group">
+                    <span class="insight-card-icon">💡</span>
+                    <div>
+                        <h3 class="insight-card-title">Smart Insights</h3>
+                        <p class="insight-card-sub" id="insightsSummarySub">Actionable highlights tailored to your spending habits.</p>
+                    </div>
+                </div>
+                <span class="badge-status badge-status--active" id="insightsCountBadge">0 Insights</span>
+            </div>
+
+            <div class="insights-summary-list" id="insightsSummaryList">
+                <!-- Populated safely via insights.js -->
+            </div>
+
+            <!-- Empty State for Smart Insights -->
+            <div id="insightsSummaryEmpty" class="empty-state" style="display: none; padding: 1.5rem 1rem;">
+                <div class="empty-icon">✨</div>
+                <h4 class="empty-title">All Quiet</h4>
+                <p class="empty-desc">No special alerts or anomalies detected for this month.</p>
+            </div>
+        </div>
+
+        <!-- Card 4: Weekly Report -->
+        <div class="insight-card weekly-report-card" id="insightsWeeklyCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title-group">
+                    <span class="insight-card-icon">📊</span>
+                    <div>
+                        <h3 class="insight-card-title">Weekly Report</h3>
+                        <p class="insight-card-sub" id="weeklyReportRange">Last 7 Days Overview</p>
+                    </div>
+                </div>
+                <span class="badge-status badge-status--active" id="weeklySpendBadge">₹0.00 spent</span>
+            </div>
+
+            <div class="weekly-report-body" id="weeklyReportBody">
+                <div class="weekly-metrics-row">
+                    <div class="weekly-metric-chip">
+                        <span class="chip-label">Daily Spend</span>
+                        <span class="chip-val" id="weeklyDailySpend">₹0.00</span>
+                    </div>
+                    <div class="weekly-metric-chip">
+                        <span class="chip-label">Faltu Spend</span>
+                        <span class="chip-val text-faltu" id="weeklyFaltuSpend">₹0.00</span>
+                    </div>
+                    <div class="weekly-metric-chip">
+                        <span class="chip-label">No-Spend Days</span>
+                        <span class="chip-val text-income" id="weeklyNoSpendDays">0 / 7</span>
+                    </div>
+                    <div class="weekly-metric-chip">
+                        <span class="chip-label">vs Prev Week</span>
+                        <span class="chip-val" id="weeklyPrevComparison">—</span>
+                    </div>
+                </div>
+
+                <div class="weekly-highlight-bar" id="weeklyHighestDayBar" style="display: none;">
+                    <span class="highlight-label">Peak Spending Day:</span>
+                    <span class="highlight-val" id="weeklyHighestDayText">—</span>
+                </div>
+
+                <!-- Top 3 Categories List -->
+                <div class="weekly-top-categories" id="weeklyTopCategories">
+                    <div class="top-cat-title">Top Categories This Week</div>
+                    <div class="top-cat-list" id="weeklyTopCatList">
+                        <!-- Populated safely via insights.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State for Weekly Report -->
+            <div id="weeklyReportEmpty" class="empty-state" style="display: none; padding: 1.5rem 1rem;">
+                <div class="empty-icon">📭</div>
+                <h4 class="empty-title">No transactions this week</h4>
+                <p class="empty-desc">No spending recorded in the last 7 days.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================= -->
+<!-- Modal: Edit Udhar Record                                 -->
+<!-- ======================================================= -->
+<div id="udharEditModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="udharEditModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="udharEditModalTitle" class="modal-title">Edit Udhar Record</h3>
+            <button type="button" class="btn-close" id="closeUdharEditModal" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="udharEditForm" novalidate>
+            <input type="hidden" id="udharEditId" value="">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="udharEditPersonName" class="form-label">Person's Name <span class="required">*</span></label>
+                    <input type="text" id="udharEditPersonName" class="input-control" maxlength="40" required>
+                </div>
+                <div class="form-group">
+                    <label for="udharEditAmount" class="form-label">Amount (₹) <span class="required">*</span></label>
+                    <input type="number" id="udharEditAmount" class="input-control" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="udharEditDueDate" class="form-label">Due Date (optional — leave blank to clear)</label>
+                    <input type="date" id="udharEditDueDate" class="input-control">
+                </div>
+                <div class="form-group">
+                    <label for="udharEditNote" class="form-label">Note (optional)</label>
+                    <input type="text" id="udharEditNote" class="input-control" maxlength="200">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelUdharEditBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveUdharEditBtn">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -275,9 +730,135 @@
         </form>
     </div>
 </div>
+
+<!-- ======================================================= -->
+<!-- Modal Dialog 3: Set / Edit Faltu Limit                  -->
+<!-- ======================================================= -->
+<div id="limitModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="limitModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="limitModalTitle" class="modal-title">Set Faltu Spending Limit</h3>
+            <button type="button" class="btn-close" id="closeLimitModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="limitForm" novalidate>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="limitAmount" class="form-label">Monthly Faltu Limit (INR ₹) <span class="required">*</span></label>
+                    <input type="number" id="limitAmount" class="input-control" step="0.01" min="0" placeholder="e.g. 1500.00" required>
+                    <p style="font-size:0.8rem; color: var(--text-muted); margin-top:0.35rem;">Enter 0 to set a strict zero-spend limit on faltu expenses.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelLimitBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveLimitBtn">Save Limit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- Modal Dialog 4: Set / Edit Savings Goal                 -->
+<!-- ======================================================= -->
+<div id="goalModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="goalModalTitle" class="modal-title">Set Savings Goal</h3>
+            <button type="button" class="btn-close" id="closeGoalModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="goalForm" novalidate>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="goalTitle" class="form-label">Goal Title</label>
+                    <input type="text" id="goalTitle" class="input-control" placeholder="e.g. New Laptop Fund" maxlength="80">
+                </div>
+                <div class="form-group">
+                    <label for="goalTarget" class="form-label">Target Amount (INR ₹) <span class="required">*</span></label>
+                    <input type="number" id="goalTarget" class="input-control" step="0.01" min="0.01" placeholder="e.g. 5000.00" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelGoalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveGoalBtn">Save Goal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- Modal Dialog 5: Manage Quick Presets                    -->
+<!-- ======================================================= -->
+<div id="presetModal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="presetModalTitle">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 id="presetModalTitle" class="modal-title">Manage Quick Presets</h3>
+            <button type="button" class="btn-close" id="closePresetModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Add / Edit Preset Form -->
+            <form id="presetForm" novalidate>
+                <input type="hidden" id="presetId" value="">
+                <h4 id="presetFormSubtitle" style="font-size:0.9rem; font-weight:700; margin-bottom:0.75rem; color:var(--text-main);">Add New Preset</h4>
+
+                <div class="form-group">
+                    <label for="presetTitle" class="form-label">Title <span class="required">*</span></label>
+                    <input type="text" id="presetTitle" class="input-control" placeholder="e.g. Chai, Auto, Samosa" maxlength="30" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="presetAmount" class="form-label">Amount (INR ₹) <span class="required">*</span></label>
+                    <input type="number" id="presetAmount" class="input-control" step="0.01" min="0.01" placeholder="e.g. 20.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Classification <span class="required">*</span></label>
+                    <div style="display:flex; gap:1rem; margin-top:0.25rem;">
+                        <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                            <input type="radio" name="presetTypeRadio" value="faltu" id="presetRadioFaltu" checked> 💸 Faltu
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                            <input type="radio" name="presetTypeRadio" value="daily" id="presetRadioDaily"> 🛒 Daily
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 80px; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label for="presetCategory" class="form-label">Category</label>
+                        <input type="text" id="presetCategory" class="input-control" list="expenseCategorySuggestions" placeholder="e.g. Snacks, Travel" maxlength="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="presetIcon" class="form-label">Icon</label>
+                        <input type="text" id="presetIcon" class="input-control" placeholder="☕" maxlength="4" value="⚡" style="text-align:center;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.5rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="cancelPresetEditBtn" style="display:none;">Cancel Edit</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="savePresetBtn">Save Preset</button>
+                </div>
+            </form>
+
+            <!-- Configured Presets List -->
+            <div class="presets-management-list">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Configured Presets (Max 12)</span>
+                    <span id="presetCountBadge" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">0 / 12</span>
+                </div>
+                <div id="presetsListContainer" style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.5rem;">
+                    <!-- Populated safely via dashboard.js -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="closePresetDialogBtn">Close</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<!-- Chart.js Pinned Version 4.4.1 (vendored for PWA offline support) -->
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
 <!-- Modular Vanilla JavaScript Application -->
 <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

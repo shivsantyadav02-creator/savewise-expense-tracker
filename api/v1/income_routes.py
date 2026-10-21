@@ -1,8 +1,10 @@
 from datetime import datetime
 from flask import Blueprint, request
 
-from utils.auth import get_current_user_id
+from utils.auth import get_current_user_id, login_required
 from utils.responses import success_response, error_response
+from utils.helpers import validate_month
+from utils.clock import today_local
 from services.income_service import (
     create_income,
     get_incomes,
@@ -14,6 +16,7 @@ from services.income_service import (
 income_bp = Blueprint("incomes", __name__, url_prefix="/incomes")
 
 @income_bp.route("", methods=["GET"], strict_slashes=False)
+@login_required
 def list_incomes():
     """
     List all incomes for the current user.
@@ -21,7 +24,8 @@ def list_incomes():
     """
     try:
         user_id = get_current_user_id()
-        month = request.args.get("month", "").strip() or datetime.now().strftime("%Y-%m")
+        raw_month = request.args.get("month", "").strip()
+        month = validate_month(raw_month) if raw_month else today_local().strftime("%Y-%m")
         incomes = get_incomes(user_id=user_id, month=month)
         return success_response(
             data=incomes,
@@ -34,6 +38,7 @@ def list_incomes():
         return error_response("An unexpected server error occurred.", 500)
 
 @income_bp.route("", methods=["POST"], strict_slashes=False)
+@login_required
 def add_income():
     """
     Creates a new income record.
@@ -71,6 +76,7 @@ def add_income():
         return error_response("An unexpected server error occurred.", 500)
 
 @income_bp.route("/<int:income_id>", methods=["GET"], strict_slashes=False)
+@login_required
 def get_income(income_id: int):
     """
     Fetches a single income record by its ID.
@@ -92,6 +98,7 @@ def get_income(income_id: int):
         return error_response("An unexpected server error occurred.", 500)
 
 @income_bp.route("/<int:income_id>", methods=["PUT"], strict_slashes=False)
+@login_required
 def modify_income(income_id: int):
     """
     Updates an existing income record.
@@ -129,6 +136,7 @@ def modify_income(income_id: int):
         return error_response("An unexpected server error occurred.", 500)
 
 @income_bp.route("/<int:income_id>", methods=["DELETE"], strict_slashes=False)
+@login_required
 def remove_income(income_id: int):
     """
     Deletes an income record owned by current user.

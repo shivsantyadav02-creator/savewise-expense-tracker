@@ -21,3 +21,4 @@ class Config:
     SECRET_KEY = _get_secret_key()
     DATABASE_PATH = os.environ.get("DATABASE_PATH", str(BASE_DIR / "savewise.db"))
     DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "yes")
+    APP_TIMEZONE = os.environ.get("APP_TIMEZONE", "Asia/Kolkata")
