@@ -1,8 +1,12 @@
 from datetime import datetime, timedelta
 from database.db import get_db
-from utils.clock import now_utc, to_iso_utc, parse_iso_utc
+from utils.clock import now_utc, to_iso_utc, parse_iso_utc, to_local_date
 from utils.helpers import inr_to_paise, paise_to_inr, derive_month_from_date
 from services.expense_service import get_expense_by_id
+
+def today_local():
+    """Returns today's date in APP_TIMEZONE (India time), derived from now_utc()."""
+    return to_local_date(now_utc())
 
 VALID_WISHLIST_STATUSES = {"waiting", "bought", "dropped", "all"}
 
@@ -200,7 +204,7 @@ def buy_wishlist_item(user_id: int, item_id: int) -> dict:
         wait_str = format_wait_duration(seconds_left)
         raise ValueError(f"Please wait {wait_str} more before buying.")
 
-    today_date = now.strftime("%Y-%m-%d")
+    today_date = today_local().isoformat()
     month = derive_month_from_date(today_date)
 
     db = get_db()

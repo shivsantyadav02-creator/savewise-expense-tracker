@@ -35,6 +35,9 @@ async function request(endpoint, options = {}) {
     }
 
     if (!response.ok || !result.success) {
+        if (response.status === 401) {
+            window.location.href = "/login";
+        }
         const errorMsg = (result && result.error) ? result.error : `HTTP ${response.status} error`;
         throw new Error(errorMsg);
     }

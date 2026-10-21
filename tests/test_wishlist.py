@@ -234,6 +234,29 @@ class TestWishlistService(unittest.TestCase):
         with self.assertRaises(ValueError):
             drop_wishlist_item(2, u1_item["id"])
 
+    def test_buy_item_expense_date_uses_today_local(self):
+        """
+        At simulated time 2026-10-05 20:00 UTC (which is 2026-10-06 01:30 AM IST),
+        buying an unlocked item creates an expense dated 2026-10-06.
+        """
+        from services.wishlist_service import create_wishlist_item, buy_wishlist_item
+
+        # Create item at 2026-10-04 12:00 UTC (unlocks at 2026-10-05 12:00 UTC)
+        created_time = datetime(2026, 10, 4, 12, 0, 0, tzinfo=timezone.utc)
+        with patch("services.wishlist_service.now_utc", return_value=created_time):
+            item = create_wishlist_item(1, "Noise Cancelling Headphones", 4500.0, "Electronics")
+
+        # Buy at simulated time: 2026-10-05 20:00:00 UTC (01:30 AM IST on Oct 6)
+        simulated_time = datetime(2026, 10, 5, 20, 0, 0, tzinfo=timezone.utc)
+        with patch("services.wishlist_service.now_utc", return_value=simulated_time), \
+             patch("utils.clock.now_utc", return_value=simulated_time):
+            res = buy_wishlist_item(1, item["id"])
+
+        self.assertEqual(res["item"]["status"], "bought")
+        self.assertEqual(res["expense"]["date"], "2026-10-06")
+        self.assertEqual(res["date"], "2026-10-06")
+        self.assertEqual(res["month"], "2026-10")
+
 
 class TestWishlistAPI(unittest.TestCase):
     """Integration tests for /api/v1/wishlist endpoints."""
@@ -363,6 +386,36 @@ class TestWishlistAPI(unittest.TestCase):
             self.assertEqual(res_get.status_code, 404)
             res_drop = self.client.post(f"/api/v1/wishlist/{item_id}/drop")
             self.assertEqual(res_drop.status_code, 404)
+
+    def test_api_ignores_client_sent_unlock_at_in_past(self):
+        """
+        Sending an unlock_at in the past in POST and PUT /api/v1/wishlist is ignored by the server.
+        """
+        past_unlock = "2020-01-01T00:00:00Z"
+
+        with patch("services.wishlist_service.now_utc", return_value=self.start_time):
+            # 1. POST /api/v1/wishlist with unlock_at in the past
+            post_res = self.client.post("/api/v1/wishlist", json={
+                "item_name": "Smart Watch",
+                "estimated_amount_inr": 2999.0,
+                "unlock_at": past_unlock
+            })
+            self.assertEqual(post_res.status_code, 201)
+            item = post_res.get_json()["data"]
+            expected_unlock = to_iso_utc(self.start_time + timedelta(hours=24))
+            self.assertEqual(item["unlock_at"], expected_unlock)
+            self.assertFalse(item["is_unlocked"])
+
+            # 2. PUT /api/v1/wishlist/<id> with unlock_at in the past
+            put_res = self.client.put(f"/api/v1/wishlist/{item['id']}", json={
+                "item_name": "Smart Watch Pro",
+                "unlock_at": past_unlock
+            })
+            self.assertEqual(put_res.status_code, 200)
+            updated_item = put_res.get_json()["data"]
+            self.assertEqual(updated_item["item_name"], "Smart Watch Pro")
+            self.assertEqual(updated_item["unlock_at"], expected_unlock)
+            self.assertFalse(updated_item["is_unlocked"])
 
 
 if __name__ == "__main__":
